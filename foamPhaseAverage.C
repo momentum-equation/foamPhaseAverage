@@ -207,10 +207,6 @@ void calcPhaseAverage
           done = true;
         }
     }
-    else
-    {
-
-    }
 
 }
 
