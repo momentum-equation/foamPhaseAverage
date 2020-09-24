@@ -57,7 +57,6 @@ int main(int argc, char *argv[])
     #include "addRegionOption.H"
 
     Foam::argList::validArgs.append("fieldName");
-    Foam::argList::validArgs.append("fieldType");
 
     #include "setRootCase.H"
     #include "createTime.H"
@@ -69,7 +68,6 @@ int main(int argc, char *argv[])
 
     // get filename from command line
     word fieldName = args[1];
-    word fieldType = args[2];
 
     word dictionaryFileName = "phaseAverageDict";
     word dictionaryDirName = "constant";
@@ -77,7 +75,7 @@ int main(int argc, char *argv[])
     IOobject phaseAverageDictIO = generateIOobject(dictionaryFileName,mesh,dictionaryDirName);
 
     // Check the if the dictionary is present and follows the OF format
-    if (!phaseAverageDictIO.typeHeaderOk<dictionary>(true))
+    if (!phaseAverageDictIO.headerOk())
         FatalErrorIn(args.executable()) << "Cannot open specified dictionary "
             << dictionaryFileName << exit(FatalError);
 
@@ -97,31 +95,13 @@ int main(int argc, char *argv[])
         IOobject::MUST_READ
     );
 
-    if (fieldType=="scalar")
+    if (fieldHeader.headerOk())
     {
         calcPhaseAverage<volScalarField>(mesh, fieldHeader, fieldName, runTime, timeDirs, done, phaseStartTime, cycleTime);
-    }
-    else if (fieldType =="vector")
-    {
         calcPhaseAverage<volVectorField>(mesh, fieldHeader, fieldName, runTime, timeDirs, done, phaseStartTime, cycleTime);
-    }
-    else if (fieldType == "tensor")
-    {
         calcPhaseAverage<volTensorField>(mesh, fieldHeader, fieldName, runTime, timeDirs, done, phaseStartTime, cycleTime);
-    }
-    else if (fieldType == "symmTensor")
-    {
         calcPhaseAverage<volSymmTensorField>(mesh, fieldHeader, fieldName, runTime, timeDirs, done, phaseStartTime, cycleTime);
-    }
-    else if (fieldType == "sphTensor")
-    {
         calcPhaseAverage<volSphericalTensorField>(mesh, fieldHeader, fieldName, runTime, timeDirs, done, phaseStartTime, cycleTime);
-    }
-
-    else
-    {
-        FatalErrorIn(args.executable()) << "Cannot find specified fieldType: "
-            << fieldType << exit(FatalError);
     }
 
     Info<< "End\n" << endl;
@@ -145,7 +125,7 @@ void calcPhaseAverage
     label nfield = 0;
     const word meanFieldName = fieldName + "_phase_locked_" + name(phaseStartTime);
 
-    if(headerChecker<FieldType>(fieldHeader))
+    if(fieldHeader.headerOk())
     {
       if(!done && fieldHeader.headerClassName()== FieldType::typeName)
       {
@@ -193,7 +173,7 @@ void calcPhaseAverage
                     IOobject::MUST_READ
                 );
 
-                if (headerChecker<FieldType>(io))
+                if (io.headerOk())
                 {
                     mesh.readUpdate();
 

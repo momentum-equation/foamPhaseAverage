@@ -1,14 +1,3 @@
-template<class FieldType>
-bool headerChecker
-(
-    IOobject& fieldHeader
-)
-{
-    bool check = false;
-    check = fieldHeader.typeHeaderOk<FieldType>(true);
-    return check;
-}
-
 Foam::IOobject generateIOobject
 ( 
     word& dictionaryName,
