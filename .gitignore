@@ -1,0 +1,5 @@
+# exclude files generated during compilation
+.o .dep 
+
+# exclude path to object files
+linux64GccDPInt64Opt/
